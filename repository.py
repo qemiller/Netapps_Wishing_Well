@@ -4,9 +4,9 @@ import pymongo
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 inputChannel = connection.channel()
 
-inputChannel.exchange_declare(exchange='Squires',type='direct')
-inputChannel.exchange_declare(exchange='Library',type='direct')
-inputChannel.exchange_declare(exchange='Goodwin',type='direct')
+inputChannel.exchange_declare(exchange='Squires',exchange_type='direct')
+inputChannel.exchange_declare(exchange='Library',exchange_type='direct')
+inputChannel.exchange_declare(exchange='Goodwin',exchange_type='direct')
 
 result = inputChannel.queue_declare(exclusive=True)
 queueName = result.method.queue
