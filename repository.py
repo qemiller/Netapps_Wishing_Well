@@ -20,4 +20,4 @@ inputChannel.queue_bind(exchange=exchangeName,queue=queue_name,routing_key=queue
 print(' [*] Waiting for logs. To exit press CTRL+C')
 
 inputChannel.basic_consume(callback, queue=queue_name, no_ack=True)
-channel.start_consuming()
+inputChannel.start_consuming()
