@@ -6,6 +6,23 @@ from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 import json
 
+
+def token(input):
+	input=input.replace("#ECE4564T11",' ')
+	input= input[2:]
+	message=""
+	type, other=input.split(":")
+	place,other=other.split('+')
+	if(type=='p'):
+		subject,other=other.split('“')
+		message=other[0:-1]
+	else:
+		subject=other
+
+	data=(type,place,subject,message)
+	print("after token",data)
+	return(data)
+
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
 Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
 API_key="2xbt50RBjGIK1NJJp059cPbFy"
@@ -16,7 +33,8 @@ class listener(StreamListener):
 		readIN=json.loads(data)
 		tweet=readIN["text"]
 		user=readIN["user"]["screen_name"]
-		print(user,"___",tweet)
+		token_tweet=token(tweet)
+		print(user,"___",token_tweet)
 		return(true)
 	def on_error(self, status):
 		print(status)
@@ -24,12 +42,11 @@ class listener(StreamListener):
 auth = OAuthHandler(API_key,API_secret_key)
 auth.set_access_token(Access_token, Access_token_secret)
 
-tweets=Stream(auth, listener() )
-tweets.filter(track=["#ECE4564T11"], async=true)
-tweets.disconnect()
-print("at the end")
+tweets=Stream(auth, listener())
+tweets.filter(track=["#ECE4564T11"])
+
+
 """
- 
 #def waitingForTweet():
     #make the light white
 
