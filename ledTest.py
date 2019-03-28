@@ -1,12 +1,13 @@
+import RPi.GPIO as GPIO
+import time
 
 redLED = 15
 greenLED = 13
 blueLED = 11
 
+channelList = [redLED,greenLED,blueLED]
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(redLED, GPIO.OUT)
-GPIO.setup(greenLED, GPIO.OUT)
-GPIO.setup(blueLED, GPIO.OUT)
+GPIO.setup(channelList, GPIO.OUT)
 
 
 def waitingForTweet():
@@ -29,3 +30,6 @@ def receivedConsume():
     GPIO.output(greenLED,True)
     time.sleep(2)
     GPIO.output(greenLED,False)
+
+receivedConsume()
+GPIO.cleanup()
