@@ -1,15 +1,35 @@
 import pika
 #import RPi.GPIO as GPIO
 import time
+from tweepy import Stream #pip install tweepy
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
+import json
 
+Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
+Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
+API_key="2xbt50RBjGIK1NJJp059cPbFy"
+API_secret_key="WTFNfQllRT4hO8SoMXwQb6asiF0SJORIzn2uFXl9CcMLnP5lHA"
 
+class listener(StreamListener):
+	def on_data(self, data):
+		readIN=json.loads(data)
+		tweet=readIN["text"]
+		user=readIN["user"]["screen_name"]
+		print(user,"___",tweet)
+		return(true)
+	def on_error(self, status):
+		print(status)
 
-#def getTweet():
-    #add code to get tweets from stream in here
-    #return an array of thecommand type, place, subject, and message.
-    #array should have command type in the zero index, place in the first index,
-    #subject in the second, and message in the third.
-    
+auth = OAuthHandler(API_key,API_secret_key)
+auth.set_access_token(Access_token, Access_token_secret)
+
+tweets=Stream(auth, listener() )
+tweets.filter(track=["#ECE4564T11"], async=true)
+tweets.disconnect()
+print("at the end")
+"""
+ 
 #def waitingForTweet():
     #make the light white
 
@@ -44,7 +64,7 @@ while(1):
         channel.start_consuming()
 
 
-
+"""
 
 
 
