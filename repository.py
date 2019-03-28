@@ -7,6 +7,9 @@ inputChannel = connection.channel()
 inputChannel.exchange_declare(exchange='Squires',exchange_type='direct')
 inputChannel.exchange_declare(exchange='Library',exchange_type='direct')
 inputChannel.exchange_declare(exchange='Goodwin',exchange_type='direct')
+inputChannel.queue_declare(exchange='Squires', queue='Food')
+inputChannel.queue_declare(exchange='Squires', queue='Meetings')
+inputChannel.queue_declare(exchange='Squires', queue='Rooms')
 
 result = inputChannel.queue_declare(exclusive=True)
 queueName = result.method.queue
