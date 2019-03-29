@@ -104,11 +104,12 @@ def receivedConsume():
 
 
 def notify_consumer(which_queue):
-	print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
+    print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
 
 def publish_to_queue(place, subject, message):
-	#this basic publish uses parameters from the 'p' type tweet
-	channel.basic_publish(exchange=place, routing_key=subject, body=message)
+    print(place, subject, message)
+    #this basic publish uses parameters from the 'p' type tweet
+    channel.basic_publish(exchange=place, routing_key=subject, body=message)
 """
 while(1):
 #    waitingForTweet()
