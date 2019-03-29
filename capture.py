@@ -34,6 +34,33 @@ Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
 API_key="2xbt50RBjGIK1NJJp059cPbFy"
 API_secret_key="WTFNfQllRT4hO8SoMXwQb6asiF0SJORIzn2uFXl9CcMLnP5lHA"
 
+# This declares up the exchanges we will need for pika and RabbitMQ
+credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
+connection = pika.BlockingConnection(pika.ConnectionParameters('172.30.67.18', 5672, '/', credentials))
+channel = connection.channel()
+# declare the exchanges we need, with their queues
+# no need to declare queues, as we've created them through the HTML interface
+# EDIT: WE MAY CHANGE SO THAT IT CREATES NO MATTER WHAT TO AVOID ISSUES DURING DEMO
+channel.exchange_declare(exchange='Goodwin',
+						 exchange_type='direct', durable=True)
+
+channel.exchange_declare(exchange='Squires',
+						 exchange_type='direct', durable=True)
+
+channel.exchange_declare(exchange='Library',
+						 exchange_type='direct', durable=True)
+# End pike/rabbitmq setup
+
+# set up GPIO stuff for LEDS
+redLED = 15
+greenLED = 13
+blueLED = 11
+
+channelList = [redLED, greenLED, blueLED]
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(channelList, GPIO.OUT)
+
+
 class listener(StreamListener):
 	def on_data(self, data):
 		readIN=json.loads(data)
@@ -58,31 +85,9 @@ tweets=Stream(auth, listener())
 
 #reading tweets start with #ECE4564T11
 #notest there is space #ECE4564T11 
-tweets.filter(track=["#ECE4564T11"]
+tweets.filter(track=["#ECE4564T11"])
 
-# This declares up the exchanges we will need for pika and RabbitMQ
-credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
-connection = pika.BlockingConnection(pika.ConnectionParameters('172.30.67.18', 5672, '/', credentials))
-channel = connection.channel()
-# declare the exchanges we need, with their queues
-# no need to declare queues, as we've created them through the HTML interface
-channel.exchange_declare(exchange='Goodwin',
-						 exchange_type='direct', durable=True)
-
-channel.exchange_declare(exchange='Squires',
-						 exchange_type='direct', durable=True)
-
-channel.exchange_declare(exchange='Library',
-						 exchange_type='direct', durable=True)
-# set up GPIO stuff for LEDS
-redLED = 15
-greenLED = 13
-blueLED = 11
-
-channelList = [redLED, greenLED, blueLED]
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(channelList, GPIO.OUT)
-
+# LED functions
 def waitingForTweet():
 	GPIO.output(redLED, True)
 	GPIO.output(blueLED, True)
