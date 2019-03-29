@@ -41,14 +41,14 @@ channel = connection.channel()
 # declare the exchanges we need, with their queues
 # no need to declare queues, as we've created them through the HTML interface
 # EDIT: WE MAY CHANGE SO THAT IT CREATES NO MATTER WHAT TO AVOID ISSUES DURING DEMO
-channel.exchange_declare(exchange='Goodwin',
-						 exchange_type='direct', durable=True)
+#channel.exchange_declare(exchange='Goodwin',
+#						 exchange_type='direct', durable=True)
 
-channel.exchange_declare(exchange='Squires',
-						 exchange_type='direct', durable=True)
+#channel.exchange_declare(exchange='Squires',
+#						 exchange_type='direct', durable=True)
 
-channel.exchange_declare(exchange='Library',
-						 exchange_type='direct', durable=True)
+#channel.exchange_declare(exchange='Library',
+#						 exchange_type='direct', durable=True)
 # End pike/rabbitmq setup
 
 # set up GPIO stuff for LEDS
