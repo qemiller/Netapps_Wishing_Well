@@ -1,5 +1,5 @@
 import pika
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 from tweepy import Stream #pip3 install tweepy
 from tweepy import OAuthHandler
@@ -42,9 +42,12 @@ class listener(StreamListener):
 		token_tweet=token(tweet)
 		print(user,"___",token_tweet)
 		if token_tweet[0] == 'p':
+			receivedPublish()
 			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
 		else:
+			receivedConsume()
 		    notify_consumer(token_tweet[2])
+		waitingForTweet()
 		return True
 	def on_error(self, status):
 		print(status)
@@ -71,17 +74,34 @@ channel.exchange_declare(exchange='Squires',
 
 channel.exchange_declare(exchange='Library',
 						 exchange_type='direct', durable=True)
+# set up GPIO stuff for LEDS
+redLED = 15
+greenLED = 13
+blueLED = 11
 
+channelList = [redLED, greenLED, blueLED]
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(channelList, GPIO.OUT)
 
+def waitingForTweet():
+	GPIO.output(redLED, True)
+	GPIO.output(blueLED, True)
+	GPIO.output(greenLED, True)
+	time.sleep(2)
+	GPIO.output(redLED, False)
+	GPIO.output(blueLED, False)
+	GPIO.output(greenLED, False)
 
-#def waitingForTweet():
-    #make the light white
+def receivedPublish():
+	GPIO.output(redLED, True)
+	time.sleep(2)
+	GPIO.output(redLED, False)
 
-#def receivedPublish():
-    #make the light red
+def receivedConsume():
+	GPIO.output(greenLED, True)
+	time.sleep(2)
+	GPIO.output(greenLED, False)
 
-#def receivedConsume():
-    #make the light green
 
 def notify_consumer(which_queue):
 	print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
