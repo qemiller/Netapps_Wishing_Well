@@ -136,3 +136,5 @@ while(1):
         channel.start_consuming()
 
 """
+#soure for ribbitMQ 
+#https://www.vultr.com/docs/how-to-install-rabbitmq-on-ubuntu-16-04-47
