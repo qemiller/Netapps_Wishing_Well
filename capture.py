@@ -73,7 +73,7 @@ class listener(StreamListener):
 			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
 		else:
 			receivedConsume()
-		    notify_consumer(token_tweet[2])
+			notify_consumer(token_tweet[2])
 		waitingForTweet()
 		return True
 	def on_error(self, status):
