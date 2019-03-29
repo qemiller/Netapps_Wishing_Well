@@ -5,6 +5,7 @@ from tweepy import Stream #pip3 install tweepy
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 import json
+import pymongo
 
 def token(input):
 	input=input.strip("#ECE4564T11 ")
