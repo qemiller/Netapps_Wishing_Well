@@ -29,7 +29,7 @@ def token(input):
 	data=(type,place,subject,message)
 	return data
 # LED functions
-def waitingForTweet():
+def waitingForTweetLED():
 	GPIO.output(redLED, True)
 	GPIO.output(blueLED, True)
 	GPIO.output(greenLED, True)
@@ -38,12 +38,12 @@ def waitingForTweet():
 	GPIO.output(blueLED, False)
 	GPIO.output(greenLED, False)
 
-def receivedPublish():
+def receivedPublishLED):
 	GPIO.output(redLED, True)
 	time.sleep(2)
 	GPIO.output(redLED, False)
 
-def receivedConsume():
+def receivedConsumeLED():
 	GPIO.output(greenLED, True)
 	time.sleep(2)
 	GPIO.output(greenLED, False)
@@ -97,12 +97,12 @@ class listener(StreamListener):
 		token_tweet=token(tweet)
 		print(user,"___",token_tweet)
 		if token_tweet[0] == 'p':
-			receivedPublish()
+			receivedPublishLED()
 			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
 		else:
-			receivedConsume()
+			receivedConsumeLED()
 			notify_consumer(token_tweet[2])
-		waitingForTweet()
+		waitingForTweetLED()
 		return True
 	def on_error(self, status):
 		print(status)
