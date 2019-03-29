@@ -57,6 +57,18 @@ def publish_to_queue(place, subject, message):
     #this basic publish uses parameters from the 'p' type tweet
     channel.basic_publish(exchange=place, routing_key=subject, body=message)
 
+def write_to_db(tweet_tuple):
+    client = pymongo.MongoClient()
+    db = client[str(tweet_tuple[1])]
+    col = db[str(tweet_tuple[2])]
+    messageid = str(time.time())
+    action = tweet_tuple[0]
+    place = tweet_tuple[1]
+    subject = tweet_tuple[2]
+    message = tweet_tuple[3]
+    dict_to_insert = {"Action": action, "Place": place, "MsgID": messageid, "Subject": subject, "Message": message}
+    col.insert_one(dict_to_insert)
+
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
 Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
 API_key="2xbt50RBjGIK1NJJp059cPbFy"
@@ -95,6 +107,7 @@ class listener(StreamListener):
 		tweet=readIN["text"]
 		user=readIN["user"]["screen_name"]
 		token_tweet=token(tweet)
+		write_to_db(token_tweet) #send to local MongoDB instance
 		print(user,"___",token_tweet)
 		if token_tweet[0] == 'p':
 			receivedPublishLED()
