@@ -1,27 +1,33 @@
 import pika
 #import RPi.GPIO as GPIO
 import time
-from tweepy import Stream #pip install tweepy
+from tweepy import Stream #pip3 install tweepy
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 import json
 
-
 def token(input):
-	input=input.replace("#ECE4564T11",' ')
-	input= input[2:]
-	message=""
-	type, other=input.split(":")
-	place,other=other.split('+')
-	if(type=='p'):
-		subject,other=other.split('“')
-		message=other[0:-1]
+	input=input.strip("#ECE4564T11 ")
+	part=""
+	subject=''
+	message=''
+	for i in input:
+		if i==':':
+			type=part
+			part=''
+		elif i=='+':
+			place=part[1:]
+			part=''
+		elif i==' ' and subject=='':
+			subject=part[1:]
+			part=''
+		part=part+i
+	if type=='p':
+		message=part
 	else:
-		subject=other
-
+		subject=part[1:]
 	data=(type,place,subject,message)
-	print("after token",data)
-	return(data)
+	return data
 
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
 Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
@@ -35,15 +41,19 @@ class listener(StreamListener):
 		user=readIN["user"]["screen_name"]
 		token_tweet=token(tweet)
 		print(user,"___",token_tweet)
-		return(true)
+		return True
 	def on_error(self, status):
 		print(status)
 
 auth = OAuthHandler(API_key,API_secret_key)
 auth.set_access_token(Access_token, Access_token_secret)
-
 tweets=Stream(auth, listener())
-tweets.filter(track=["#ECE4564T11"])
+
+#reading tweets start with #ECE4564T11
+#notest there is space #ECE4564T11 
+tweets.filter(track=["#ECE4564T11"]
+
+
 
 
 """
@@ -81,8 +91,7 @@ while(1):
         channel.start_consuming()
 
 
+
+
+
 """
-
-
-
-
