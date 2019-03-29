@@ -38,7 +38,7 @@ def waitingForTweetLED():
 	GPIO.output(blueLED, False)
 	GPIO.output(greenLED, False)
 
-def receivedPublishLED):
+def receivedPublishLED():
 	GPIO.output(redLED, True)
 	time.sleep(2)
 	GPIO.output(redLED, False)
