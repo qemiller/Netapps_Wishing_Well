@@ -41,6 +41,10 @@ class listener(StreamListener):
 		user=readIN["user"]["screen_name"]
 		token_tweet=token(tweet)
 		print(user,"___",token_tweet)
+		if(token_tweet[0] == 'p'):
+			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
+		else:
+		    notify_consumer(token_tweet[2])
 		return True
 	def on_error(self, status):
 		print(status)
@@ -53,10 +57,23 @@ tweets=Stream(auth, listener())
 #notest there is space #ECE4564T11 
 tweets.filter(track=["#ECE4564T11"]
 
+# This declares up the exchanges we will need for pika and RabbitMQ
+credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
+connection = pika.BlockingConnection(pika.ConnectionParameters('172.30.67.18', 5672, '/', credentials))
+channel = connection.channel()
+# declare the exchanges we need, with their queues
+# no need to declare queues, as we've created them through the HTML interface
+channel.exchange_declare(exchange='Goodwin',
+						 exchange_type='direct', durable=True)
+
+channel.exchange_declare(exchange='Squires',
+						 exchange_type='direct', durable=True)
+
+channel.exchange_declare(exchange='Library',
+						 exchange_type='direct', durable=True)
 
 
 
-"""
 #def waitingForTweet():
     #make the light white
 
@@ -66,12 +83,13 @@ tweets.filter(track=["#ECE4564T11"]
 #def receivedConsume():
     #make the light green
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
-channel.exchange_declare(exchange='Squires', exchange_type='direct')
-channel.exchange_declare(exchange='Goodwin', exchange_type='direct')
-channel.exchange_declare(exchange='Library', exchange_type='direct')
+def notify_consumer(which_queue):
+	print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
 
+def publish_to_queue(place, subject, message):
+	#this basic publish uses parameters from the 'p' type tweet
+	channel.basic_publish(exchange=place, routing_key=subject, body=message)
+"""
 while(1):
 #    waitingForTweet()
     tweet = []
@@ -89,9 +107,5 @@ while(1):
         channel.queue_bind(exchange=tweet[1], queue=queue_name, routing_key=tweet[2])
         channel.basic_consume(callback, queue=queue_name, no_ack=True)
         channel.start_consuming()
-
-
-
-
 
 """
