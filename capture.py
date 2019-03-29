@@ -28,6 +28,34 @@ def token(input):
 		subject=part[1:]
 	data=(type,place,subject,message)
 	return data
+# LED functions
+def waitingForTweet():
+	GPIO.output(redLED, True)
+	GPIO.output(blueLED, True)
+	GPIO.output(greenLED, True)
+	time.sleep(2)
+	GPIO.output(redLED, False)
+	GPIO.output(blueLED, False)
+	GPIO.output(greenLED, False)
+
+def receivedPublish():
+	GPIO.output(redLED, True)
+	time.sleep(2)
+	GPIO.output(redLED, False)
+
+def receivedConsume():
+	GPIO.output(greenLED, True)
+	time.sleep(2)
+	GPIO.output(greenLED, False)
+
+
+def notify_consumer(which_queue):
+    print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
+
+def publish_to_queue(place, subject, message):
+    print(place, subject, message)
+    #this basic publish uses parameters from the 'p' type tweet
+    channel.basic_publish(exchange=place, routing_key=subject, body=message)
 
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
 Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
@@ -87,34 +115,7 @@ tweets=Stream(auth, listener())
 #notest there is space #ECE4564T11 
 tweets.filter(track=["#ECE4564T11"])
 
-# LED functions
-def waitingForTweet():
-	GPIO.output(redLED, True)
-	GPIO.output(blueLED, True)
-	GPIO.output(greenLED, True)
-	time.sleep(2)
-	GPIO.output(redLED, False)
-	GPIO.output(blueLED, False)
-	GPIO.output(greenLED, False)
 
-def receivedPublish():
-	GPIO.output(redLED, True)
-	time.sleep(2)
-	GPIO.output(redLED, False)
-
-def receivedConsume():
-	GPIO.output(greenLED, True)
-	time.sleep(2)
-	GPIO.output(greenLED, False)
-
-
-def notify_consumer(which_queue):
-    print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
-
-def publish_to_queue(place, subject, message):
-    print(place, subject, message)
-    #this basic publish uses parameters from the 'p' type tweet
-    channel.basic_publish(exchange=place, routing_key=subject, body=message)
 """
 while(1):
 #    waitingForTweet()
