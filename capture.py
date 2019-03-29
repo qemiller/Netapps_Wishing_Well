@@ -41,7 +41,7 @@ class listener(StreamListener):
 		user=readIN["user"]["screen_name"]
 		token_tweet=token(tweet)
 		print(user,"___",token_tweet)
-		if(token_tweet[0] == 'p'):
+		if token_tweet[0] == 'p':
 			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
 		else:
 		    notify_consumer(token_tweet[2])
