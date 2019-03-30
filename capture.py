@@ -55,15 +55,15 @@ def publish_to_queue(place, subject, message):
     #this basic publish uses parameters from the 'p' type tweet
     channel.basic_publish(exchange=place, routing_key=subject, body=message)
 
-def write_to_db(tweet_tuple):
+def write_to_db(tweet_dict):
     client = pymongo.MongoClient()
-    db = client[str(tweet_tuple[1])]
-    col = db[str(tweet_tuple[2])]
+    db = client[str(tweet_dict['place'])]
+    col = db[str(tweet_dict['subject'])]
     messageid = str(time.time())
-    action = tweet_tuple[0]
-    place = tweet_tuple[1]
-    subject = tweet_tuple[2]
-    message = tweet_tuple[3]
+    action = tweet_dict['type']
+    place = tweet_dict['place']
+    subject = tweet_dict['subject']
+    message = tweet_dict['message']
     dict_to_insert = {"Action": action, "Place": place, "MsgID": messageid, "Subject": subject, "Message": message}
     col.insert_one(dict_to_insert)
     return dict_to_insert
