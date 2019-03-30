@@ -44,16 +44,16 @@ inputChannel.queue_bind(exchange='Checkpoint', queue='send_back')
 #    and publishing the consumptions to the 'send_back' queue where the capture pi will display on monitor
 # 4. every Checkpoint string we get from cmd queue we will print out to the console of repo pi
 def callback(ch, method, properties, body):
-	tuple_res=json.loads(body)
+	cmd_dict=json.loads(body.decode('utf-8'))
 	#print(" [x] %r:%r" % (method.routing_key, body))
-	if tuple_res[0] == 'c':
+	if cmd_dict['flag'] == 'c':
 		print('this was a c type command')
-		method_frame, header_frame, tweet_body = channel.basic_get('Squires')
-		tweet = json.loads(tweet_body)
-		print('this is from a basic_get:',tweet)
+		method_frame, header_frame, tweet_body = channel.basic_get('Food') # we need to give the queue name in our cmd payload!
+		tweet = json.loads(tweet_body.decode('utf-8'))
+		print('this is a dictionary from a basic_get:',tweet)
         #need to consume from one of the place+subject queues
         #and publish the twitter message to the 'send_back' queue
-	print(tuple_res) # theoretically should print out the checkpoin
+	print(cmd_dict["checkpoint"]) # theoretically should print out the checkpoint (with flag at the moment)
 
 
 print(' [*] Waiting for logs. To exit press CTRL+C')
