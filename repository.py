@@ -47,12 +47,16 @@ def callback(ch, method, properties, body):
 	cmd_dict=json.loads(body.decode('utf-8'))
 	#print(" [x] %r:%r" % (method.routing_key, body))
 	if cmd_dict['flag'] == 'c':
-		print('this was a c type command')
-		method_frame, header_frame, tweet_body = channel.basic_get('Food') # we need to give the queue name in our cmd payload!
+		#need to consume from one of the subject queues
+		#print('this was a c type command. Going to consume from: ', cmd_dict['subject'], ' queue.')
+		method_frame, header_frame, tweet_body = inputChannel.basic_get(str(cmd_dict['subject'])) # we need to give the queue name in our cmd payload!
 		tweet = json.loads(tweet_body.decode('utf-8'))
-		print('this is a dictionary from a basic_get:',tweet)
-        #need to consume from one of the place+subject queues
-        #and publish the twitter message to the 'send_back' queue
+		#print('this is a dictionary from a basic_get:',tweet)
+        	#and publish the twitter message to the 'send_back' queue
+		#make single item dictionary of just twitter message
+		msg={'message': tweet['message']} #msg is a dictionary
+		send_back_payload=json.dumps(msg) #serialize msg dictionary
+		inputChannel.basic_publish(exchange='Checkpoint', routing_key='send_back', body=send_back_payload) #this currently only send the message from the tweet consumed back
 	print(cmd_dict["checkpoint"]) # theoretically should print out the checkpoint (with flag at the moment)
 
 
