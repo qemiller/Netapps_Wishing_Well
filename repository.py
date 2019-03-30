@@ -1,6 +1,6 @@
-######### this is the repo file
+######## this is the repo file
 import pika
-
+import json
 # setup to get rabbitmq stuff ready_______________
 credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
 parameters = pika.ConnectionParameters('172.30.67.18', 5672, '/',credentials)
@@ -44,17 +44,19 @@ inputChannel.queue_bind(exchange='Checkpoint', queue='send_back')
 #    and publishing the consumptions to the 'send_back' queue where the capture pi will display on monitor
 # 4. every Checkpoint string we get from cmd queue we will print out to the console of repo pi
 def callback(ch, method, properties, body):
-    #print(" [x] %r:%r" % (method.routing_key, body))
-    if body[0] == 'c':
-        print('this was a c type command')
+	tuple_res=json.loads(body)
+	#print(" [x] %r:%r" % (method.routing_key, body))
+	if tuple_res[0] == 'c':
+		print('this was a c type command')
+		method_frame, header_frame, tweet_body = channel.basic_get('Squires')
+		tweet = json.loads(tweet_body)
+		print('this is from a basic_get:',tweet)
         #need to consume from one of the place+subject queues
         #and publish the twitter message to the 'send_back' queue
-
-    print(body[1]) # theoretically should print out the checkpoint
-
+	print(tuple_res) # theoretically should print out the checkpoin
 
 
 print(' [*] Waiting for logs. To exit press CTRL+C')
 
-inputChannel.basic_consume(callback, queue='cmd', no_ack=True)
+inputChannel.basic_consume(queue='cmd',on_message_callback=callback, auto_ack=True)
 inputChannel.start_consuming()
