@@ -79,15 +79,14 @@ connection = pika.BlockingConnection(pika.ConnectionParameters('172.30.67.18', 5
 channel = connection.channel()
 # declare the exchanges we need, with their queues
 # no need to declare queues, as we've created them through the HTML interface
-# EDIT: WE MAY CHANGE SO THAT IT CREATES NO MATTER WHAT TO AVOID ISSUES DURING DEMO
-#channel.exchange_declare(exchange='Goodwin',
-#						 exchange_type='direct', durable=True)
+channel.exchange_declare(exchange='Goodwin',
+						 exchange_type='direct', durable=True)
 
-#channel.exchange_declare(exchange='Squires',
-#						 exchange_type='direct', durable=True)
+channel.exchange_declare(exchange='Squires',
+						 exchange_type='direct', durable=True)
 
-#channel.exchange_declare(exchange='Library',
-#						 exchange_type='direct', durable=True)
+channel.exchange_declare(exchange='Library',
+						 exchange_type='direct', durable=True)
 # End pike/rabbitmq setup
 
 # set up GPIO stuff for LEDS
@@ -99,8 +98,6 @@ channelList = [redLED, greenLED, blueLED]
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(channelList, GPIO.OUT)
 
-def callback:
-	start()
 
 class listener(StreamListener):
 	def on_data(self, data):
@@ -111,10 +108,10 @@ class listener(StreamListener):
 		token_tweet=token(tweet)
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=('i', checkpoint1))
 		dict=write_to_db(token_tweet) #send to local MongoDB instance
-		checkpiont2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
+		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=('i', checkpoint2))	#send to mag DB with check point2
 		#LED with check point3
-		checkpiont3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
+		checkpoint3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint3))
 		if token_tweet[0] == 'p':
 			receivedPublishLED()
@@ -128,15 +125,14 @@ class listener(StreamListener):
 		return True
 	def on_error(self, status):
 		print(status)
-start()
-def start:
-	auth = OAuthHandler(API_key,API_secret_key)
-	auth.set_access_token(Access_token, Access_token_secret)
-	tweets=Stream(auth, listener())
 
-	#reading tweets start with #ECE4564T11
-	#notest there is a space after  #ECE4564T11 
-	tweets.filter(track=["#ECE4564T11"])
+auth = OAuthHandler(API_key,API_secret_key)
+auth.set_access_token(Access_token, Access_token_secret)
+tweets=Stream(auth, listener())
+
+#reading tweets start with #ECE4564T11
+#notest there is a space after  #ECE4564T11
+tweets.filter(track=["#ECE4564T11"])
 
 
 """
