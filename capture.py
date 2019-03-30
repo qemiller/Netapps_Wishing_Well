@@ -51,9 +51,12 @@ def receivedConsumeLED():
 
 
 def publish_to_queue(place, subject, message):
-    print(place, subject, message)
+    #print(place, subject, message)
+    #serialize message with json
+    msg={'message':str(message)}
+    payload=json.dumps(msg)
     #this basic publish uses parameters from the 'p' type tweet
-    channel.basic_publish(exchange=place, routing_key=subject, body=message)
+    channel.basic_publish(exchange=place, routing_key=subject, body=payload)
 
 def write_to_db(tweet_dict):
     client = pymongo.MongoClient()
@@ -91,46 +94,48 @@ channel.exchange_declare(exchange='Checkpoint',
 						 exchange_type='direct', durable=True)
 
 # End pike/rabbitmq setup
-
 # set up GPIO stuff for LEDS
 redLED = 15
 greenLED = 13
 blueLED = 11
-
-channelList = [redLED, greenLED, blueLED]
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(channelList, GPIO.OUT)
+def LED_setup():
+	channelList = [redLED, greenLED, blueLED]
+	GPIO.setmode(GPIO.BOARD)
+	GPIO.setup(channelList, GPIO.OUT)
 
 
 class listener(StreamListener):
 	def on_data(self, data):
 		readIN=json.loads(data)
 		tweet=readIN["text"]
-		print('have read in tweet')
+		#print('have read in tweet')
 		#send to cmd queue with check point1 
 		checkpoint1= "[Checkpoint 01  " + str(time.time()) + "] Tweet captured: " + tweet
-		print('created checkpoint1')
+		#print('created checkpoint1')
 		token_tweet=token(tweet) #this returns a dictionary
-		print('created token_tweet: ', token_tweet)
+		#print('created token_tweet: ', token_tweet)
 		checkpoint1_json=json.dumps({"flag":'i',"checkpoint": checkpoint1}) #serialize results to send over pika->rabbitmq->socket
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=checkpoint1_json)
-		print('published checkpoint1 to cmd queue')
+		#print('published checkpoint1 to cmd queue')
 		dict=write_to_db(token_tweet) #send to local MongoDB instance
-		print('sent doc to mongodb: ', str(dict))
+		#print('sent doc to mongodb: ', str(dict))
 		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
-		print('created checkpoint2')
+		#print('created checkpoint2')
 		checkpoint2_json=json.dumps({"flag":'i', "checkpoint":checkpoint2})
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=checkpoint2_json)	#send to mag DB with check point2
-		print('published checkpoint2 to cmd queue')
+		#print('published checkpoint2 to cmd queue')
 		#LED with check point3##########################
 		checkpoint3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
-		print('created checkpoint3')
-		checkpoint3_json=json.dumps({"flag":'i',"checkpoint":checkpoint3})
+		#print('created checkpoint3')
+		flag='i'
+		if token_tweet['type'] == 'c':
+			flag='c'
+		checkpoint3_json=json.dumps({"flag":flag,"checkpoint":checkpoint3, "subject": token_tweet["subject"]})
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint3_json)
-		print('published checkpoint3 to cmd exchange')
+		#print('published checkpoint3 to cmd exchange')
 		if token_tweet["type"] == 'p':
 			receivedPublishLED()
-			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message']) #this is check point
+			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message'])
 		else:
 			receivedConsumeLED()
 			a,b,sendbackbody=channel.basic_get(queue='send_back')
@@ -145,7 +150,8 @@ class listener(StreamListener):
 		return True
 	def on_error(self, status):
 		print(status)
-
+LED_setup()
+waitingForTweetLED()
 auth = OAuthHandler(API_key,API_secret_key)
 auth.set_access_token(Access_token, Access_token_secret)
 tweets=Stream(auth, listener())
@@ -153,27 +159,7 @@ tweets=Stream(auth, listener())
 #reading tweets start with #ECE4564T11
 #notest there is a space after  #ECE4564T11
 tweets.filter(track=["#ECE4564T11"])
+GPIO.cleanup() #honestly don't know if this will get called when you ctl+c
 
-
-"""
-while(1):
-#    waitingForTweet()
-    tweet = []
-    tweet[0] = input('produce or consume?\n')
-    tweet[1] = input('Place\n')
-    tweet[2] = input('Subject\n')
-    tweet[3] = input('message')
-    if tweet[0] == 'p':
-        receivedPublish()
-        channel.basic_publish(exchange=tweet[1], routing_key=tweet[2], body=tweet[3])
-        print('sent ', tweet[3])
-    
-    if tweet[0] == 'c':
-        receivedConsume()
-        channel.queue_bind(exchange=tweet[1], queue=queue_name, routing_key=tweet[2])
-        channel.basic_consume(callback, queue=queue_name, no_ack=True)
-        channel.start_consuming()
-
-"""
 #soure for ribbitMQ 
 #https://www.vultr.com/docs/how-to-install-rabbitmq-on-ubuntu-16-04-47
