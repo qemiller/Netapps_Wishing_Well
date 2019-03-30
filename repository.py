@@ -47,6 +47,7 @@ inputChannel.queue_bind(exchange='Checkpoint', queue='send_back')
 def callback(ch, method, properties, body):
     #print(" [x] %r:%r" % (method.routing_key, body))
     if body[0] == 'c':
+        print('this was a c type command')
         #need to consume from one of the place+subject queues
         #and publish the twitter message to the 'send_back' queue
 
