@@ -1,6 +1,5 @@
 ######### this is the repo file
 import pika
-import pymongo
 
 # setup to get rabbitmq stuff ready_______________
 credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
