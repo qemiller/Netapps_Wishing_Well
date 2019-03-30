@@ -19,6 +19,9 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 def callback(ch, method, properties, body):
         print(" [x] %r" % body)
 
-channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-
-channel.start_consuming()
+#channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+#nonblockconnection=pika.Connection(parameters)
+#nonblock_channel=nonblockconnection.channel()
+#nonblock_channel.basic_get(queue=queue_name, no_ack=True)
+channel.basic_get( queue='send_back', no_ack=False)
+#channel.start_consuming()

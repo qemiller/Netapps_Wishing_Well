@@ -50,9 +50,6 @@ def receivedConsumeLED():
 	GPIO.output(greenLED, False)
 
 
-def notify_consumer(which_queue):
-    print('here we will notify the repository pi and tell it what queue to consume from: ', which_queue)
-
 def publish_to_queue(place, subject, message):
     print(place, subject, message)
     #this basic publish uses parameters from the 'p' type tweet
@@ -69,6 +66,7 @@ def write_to_db(tweet_tuple):
     message = tweet_tuple[3]
     dict_to_insert = {"Action": action, "Place": place, "MsgID": messageid, "Subject": subject, "Message": message}
     col.insert_one(dict_to_insert)
+    return dict_to_insert
 
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
 Access_token_secret="kv813RHVcuf4RXSkL9VcClyDMmPk68ZxkJU4tuRIqFXWf"
@@ -101,33 +99,44 @@ channelList = [redLED, greenLED, blueLED]
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(channelList, GPIO.OUT)
 
+def callback:
+	start()
 
 class listener(StreamListener):
 	def on_data(self, data):
 		readIN=json.loads(data)
 		tweet=readIN["text"]
-		user=readIN["user"]["screen_name"]
+		#send to cmd queue with check point1 
+		checkpoint1= "[Checkpoint 01  " + str(time.time()) + "] Tweet captured: " + tweet
 		token_tweet=token(tweet)
-		write_to_db(token_tweet) #send to local MongoDB instance
-		print(user,"___",token_tweet)
+		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=('i', checkpoint1))
+		dict=write_to_db(token_tweet) #send to local MongoDB instance
+		checkpiont2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
+		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=('i', checkpoint2))	#send to mag DB with check point2
+		#LED with check point3
+		checkpiont3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
+		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint3))
 		if token_tweet[0] == 'p':
 			receivedPublishLED()
-			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3])
+			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3]) #this is check point
 		else:
 			receivedConsumeLED()
-			notify_consumer(token_tweet[2])
+			channel.basic_get(queue='send_back', no_sck=True)
+		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + token_tweet4
+		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint4)
 		waitingForTweetLED()
 		return True
 	def on_error(self, status):
 		print(status)
+start()
+def start:
+	auth = OAuthHandler(API_key,API_secret_key)
+	auth.set_access_token(Access_token, Access_token_secret)
+	tweets=Stream(auth, listener())
 
-auth = OAuthHandler(API_key,API_secret_key)
-auth.set_access_token(Access_token, Access_token_secret)
-tweets=Stream(auth, listener())
-
-#reading tweets start with #ECE4564T11
-#notest there is space #ECE4564T11 
-tweets.filter(track=["#ECE4564T11"])
+	#reading tweets start with #ECE4564T11
+	#notest there is a space after  #ECE4564T11 
+	tweets.filter(track=["#ECE4564T11"])
 
 
 """
