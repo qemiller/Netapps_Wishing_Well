@@ -87,6 +87,9 @@ channel.exchange_declare(exchange='Squires',
 
 channel.exchange_declare(exchange='Library',
 						 exchange_type='direct', durable=True)
+channel.exchange_declare(exchange='Checkpoint',
+						 exchange_type='direct', durable=True)
+
 # End pike/rabbitmq setup
 
 # set up GPIO stuff for LEDS
@@ -130,7 +133,10 @@ class listener(StreamListener):
 			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message']) #this is check point
 		else:
 			receivedConsumeLED()
-			channel.basic_get(queue='send_back', no_sck=True)
+			a,b,sendbackbody=channel.basic_get(queue='send_back')
+			print('This is what we got back from send_back queue: ',  sendbackbody)
+			consumed_tweet=json.loads(sendbackbody.decode('utf-8'))
+			print("I will print this to the monitor: ", consumed_tweet)
 		#check point 4 
 		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + str(token_tweet)
 		checkpoint4_json=json.dumps({'flag':'i',"checkpoint":checkpoint4,"subject":token_tweet["subject"]}) #include subject
