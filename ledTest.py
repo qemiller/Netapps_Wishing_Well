@@ -32,4 +32,6 @@ def receivedConsume():
     GPIO.output(greenLED,False)
 
 receivedConsume()
+receivedPublish()
+waitingForTweet()
 GPIO.cleanup()
