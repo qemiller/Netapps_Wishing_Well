@@ -6,6 +6,7 @@ from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
 import json
 import pymongo
+from threading import Thread
 
 def token(input):
 	input=input.strip("#ECE4564T11 ")
@@ -58,17 +59,21 @@ def publish_to_queue(place, subject, message):
     #this basic publish uses parameters from the 'p' type tweet
     channel.basic_publish(exchange=place, routing_key=subject, body=payload)
 
-def write_to_db(tweet_dict):
+def save_to_db_async(database, collection, doc):
     client = pymongo.MongoClient()
-    db = client[str(tweet_dict['place'])]
-    col = db[str(tweet_dict['subject'])]
+    db = client[database]
+    col = db[collection]
+    col.insert_one(doc)
+
+def write_to_db(tweet_dict):
     messageid = str(time.time())
     action = tweet_dict['type']
     place = tweet_dict['place']
     subject = tweet_dict['subject']
     message = tweet_dict['message']
     dict_to_insert = {"Action": action, "Place": place, "MsgID": messageid, "Subject": subject, "Message": message}
-    col.insert_one(dict_to_insert)
+    thread = Thread(target = save_to_db_async, args=(place,subject,dict_to_insert))
+    thread.start() #don't join the thread, that would wait for it to finish and defeat the purpose
     return dict_to_insert
 
 Access_token="1110278796710694912-E3GEGKkHNM6IwVpgwsJ1kx4h2ChdmU"
@@ -125,11 +130,14 @@ class listener(StreamListener):
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=checkpoint2_json)	#send to mag DB with check point2
 		#print('published checkpoint2 to cmd queue')
 		#LED with check point3##########################
-		checkpoint3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
+		checkpoint3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: "
 		#print('created checkpoint3')
 		flag='i'
 		if token_tweet['type'] == 'c':
 			flag='c'
+			checkpoint3 = checkpoint3 + "received consume command: turning on Green LED."
+		else:
+			checkpoint3 = checkpoint3 + "received publish command: turning on Red LED."
 		checkpoint3_json=json.dumps({"flag":flag,"checkpoint":checkpoint3, "subject": token_tweet["subject"]})
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint3_json)
 		#print('published checkpoint3 to cmd exchange')
