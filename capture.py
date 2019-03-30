@@ -131,8 +131,9 @@ class listener(StreamListener):
 		else:
 			receivedConsumeLED()
 			channel.basic_get(queue='send_back', no_sck=True)
+		#check point 4 
 		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + str(token_tweet)
-		checkpoint4_json=json.dumps({'flag':'i',"checkpoint":checkpoint4})
+		checkpoint4_json=json.dumps({'flag':'i',"checkpoint":checkpoint4,"subject":token_tweet["subject"]}) #include subject
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint4_json)
 		waitingForTweetLED()
 		return True
