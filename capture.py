@@ -7,7 +7,7 @@ from tweepy.streaming import StreamListener
 import json
 import pymongo
 from threading import Thread
-import  keys
+import  captureKeys
 
 def token(input):
 	input=input.strip("#ECE4564T11 ")
@@ -77,13 +77,13 @@ def write_to_db(tweet_dict):
     thread.start() #don't join the thread, that would wait for it to finish and defeat the purpose
     return dict_to_insert
 
-Access_token= keys.Access_token
-Access_token_secret=keys.Access_token_secret
-API_key=keys.API_key
-API_secret_key=keys.API_secret_key
+Access_token= captureKeys.Access_token
+Access_token_secret=captureKeys.Access_token_secret
+API_key=captureKeys.API_key
+API_secret_key=captureKeys.API_secret_key
 
 # This declares up the exchanges we will need for pika and RabbitMQ
-credentials = pika.PlainCredentials('mqadmin', 'mqadminpassword')
+credentials = pika.PlainCredentials(captureKeys.rabbitmq_usr, captureKeys.rabbitmq_pwd)
 connection = pika.BlockingConnection(pika.ConnectionParameters('172.30.67.18', 5672, '/', credentials))
 channel = connection.channel()
 # declare the exchanges we need, with their queues
