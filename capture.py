@@ -125,9 +125,9 @@ class listener(StreamListener):
 		checkpoint3_json=json.dumps({"flag":'i',"checkpoint":checkpoint3})
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint3_json)
 		print('published checkpoint3 to cmd exchange')
-		if token_tweet[0] == 'p':
+		if token_tweet["tpye"] == 'p':
 			receivedPublishLED()
-			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3]) #this is check point
+			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message']) #this is check point
 		else:
 			receivedConsumeLED()
 			channel.basic_get(queue='send_back', no_sck=True)
