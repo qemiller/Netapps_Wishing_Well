@@ -103,16 +103,27 @@ class listener(StreamListener):
 	def on_data(self, data):
 		readIN=json.loads(data)
 		tweet=readIN["text"]
+		print('have read in tweet')
 		#send to cmd queue with check point1 
 		checkpoint1= "[Checkpoint 01  " + str(time.time()) + "] Tweet captured: " + tweet
+		print('created checkpoint1')
 		token_tweet=token(tweet)
-		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=('i', checkpoint1))
+		print('created token_tweet: ', token_tweet)
+		checkpoint1_json=json.dumps(('i', checkpoint1)) #serialize results to send over pika->rabbitmq->socket
+		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=checkpoint1_json)
+		print('published checkpoint1 to cmd queue')
 		dict=write_to_db(token_tweet) #send to local MongoDB instance
+		print('sent doc to mongodb: ', str(dict))
 		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
+		print('created checkpoint2')
+		checkpoint2_json=json.dumps(('i', checkpoint2))
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=('i', checkpoint2))	#send to mag DB with check point2
+		print('published checkpoint2 to cmd queue')
 		#LED with check point3
 		checkpoint3= "[Checkpoint 03  " + str(time.time()) + "] GPIO LED: " +  "turning on LED"
+		print('created checkpoint3')
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint3))
+		print('published checkpoint3 to cmd exchange')
 		if token_tweet[0] == 'p':
 			receivedPublishLED()
 			publish_to_queue(token_tweet[1], token_tweet[2], token_tweet[3]) #this is check point
@@ -120,7 +131,7 @@ class listener(StreamListener):
 			receivedConsumeLED()
 			channel.basic_get(queue='send_back', no_sck=True)
 		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + token_tweet4
-		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint4)
+		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body=('i', checkpoint4))
 		waitingForTweetLED()
 		return True
 	def on_error(self, status):
