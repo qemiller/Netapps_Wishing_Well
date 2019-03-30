@@ -27,7 +27,7 @@ def token(input):
 		message=part
 	else:
 		subject=part[1:]
-	data=(type,place,subject,message)
+	data={'type':type,'place':place,'subject':subject,'message':message}
 	return data
 # LED functions
 def waitingForTweetLED():
@@ -107,16 +107,16 @@ class listener(StreamListener):
 		#send to cmd queue with check point1 
 		checkpoint1= "[Checkpoint 01  " + str(time.time()) + "] Tweet captured: " + tweet
 		print('created checkpoint1')
-		token_tweet=token(tweet)
+		token_tweet=token(tweet) #this returns a dictionary
 		print('created token_tweet: ', token_tweet)
-		checkpoint1_json=json.dumps(('i', checkpoint1)) #serialize results to send over pika->rabbitmq->socket
+		checkpoint1_json=json.dumps({"flag":'i',"checkpoint": checkpoint1}) #serialize results to send over pika->rabbitmq->socket
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=str(checkpoint1_json))
 		print('published checkpoint1 to cmd queue')
 		dict=write_to_db(token_tweet) #send to local MongoDB instance
 		print('sent doc to mongodb: ', str(dict))
 		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
 		print('created checkpoint2')
-		checkpoint2_json=json.dumps(('i', checkpoint2))
+		checkpoint2_json=json.dumps({"flag":'i', "checkpoint":checkpoint2})
 		channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=str(checkpoint2_json))	#send to mag DB with check point2
 		print('published checkpoint2 to cmd queue')
 		#LED with check point3
