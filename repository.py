@@ -32,7 +32,7 @@ inputChannel.queue_bind(exchange='Goodwin', queue='Auditorium')
 inputChannel.queue_bind(exchange='Library', queue='Seating')
 inputChannel.queue_bind(exchange='Library', queue='Noise')
 inputChannel.queue_bind(exchange='Library', queue='Wishes')
-inputChannel.queue_bind(exchange='Checkpiont', queue='cmd')
+inputChannel.queue_bind(exchange='Checkpoint', queue='cmd')
 inputChannel.queue_bind(exchange='Checkpoint', queue='send_back')
 # end rabbitmq setup___________________________________
 
