@@ -125,13 +125,13 @@ class listener(StreamListener):
 		checkpoint3_json=json.dumps({"flag":'i',"checkpoint":checkpoint3})
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint3_json)
 		print('published checkpoint3 to cmd exchange')
-		if token_tweet["tpye"] == 'p':
+		if token_tweet["type"] == 'p':
 			receivedPublishLED()
 			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message']) #this is check point
 		else:
 			receivedConsumeLED()
 			channel.basic_get(queue='send_back', no_sck=True)
-		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + token_tweet4
+		checkpoint4="[Checkpoing 04 " + str(time.time()) + "] Print out RabbitMQ command sent to Repository RPi: " + str(token_tweet)
 		checkpoint4_json=json.dumps({'flag':'i',"checkpoint":checkpoint4})
 		channel.basic_publish(exchange="Checkpoint",routing_key="cmd", body= checkpoint4_json)
 		waitingForTweetLED()
