@@ -146,7 +146,7 @@ class listener(StreamListener):
 		if token_tweet["type"] == 'p':
 			receivedPublishLED()
 			publish_to_queue(token_tweet['place'], token_tweet['subject'], token_tweet['message'])
-			checkpoint5_specific="Published to exchange:  " + token_tweet['place'] + " with routing_key: " token_tweet['subject'] + " and message of: " + token_tweet['message']
+			checkpoint5_specific="Published to exchange:  " + token_tweet['place'] + " with routing_key: " + token_tweet['subject'] + " and message of: " + token_tweet['message']
 		else:
 			receivedConsumeLED()
 			a,b,sendbackbody=channel.basic_get(queue='send_back')
