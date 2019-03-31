@@ -9,9 +9,11 @@ import pymongo
 from threading import Thread
 import  captureKeys
 
+hashtag=str(sys.argv[4])
+
 def token(input):
 	#input=input.strip("#ECE4564T11")
-	input=input.replace("#ECE4564T11",'')
+	input=input.replace(hashtag,'')
 	part=""
 	subject=''
 	message=''
@@ -188,7 +190,7 @@ auth.set_access_token(Access_token, Access_token_secret)
 tweets=Stream(auth, listener())
 
 #reading tweets start with #ECE4564T11
-tweets.filter(track=["#ECE4564T11"])
+tweets.filter(track=[hashtag])
 GPIO.cleanup() #honestly don't know if this will get called when you ctl+c
 
 #soure for ribbitMQ 
