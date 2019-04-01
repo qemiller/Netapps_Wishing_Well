@@ -140,8 +140,9 @@ class listener(StreamListener):
 		#channel.basic_publish(exchange="Checkpoint", routing_key="cmd",body=checkpoint1_json)
 		#print('published checkpoint1 to cmd queue')
 		dict=write_to_db(token_tweet) #send to local MongoDB instance
+		dict_to_print='\n{\n' + "\t\"Action\": " + dict["Action"] + ',\n\t' + "\"Place\": "+dict["Place"] + ',\n\t' + "\"MsgID\": " + dict["MsgID"]+ ',\n\t' + "\"Subject\": " + dict["Subject"]+ ',\n\t' + "\"Message\": " + dict["Message"]+ '\n}' #this adds spaces, commas and newline characters for the document format to print out during checkpoints
 		#print('sent doc to mongodb: ', str(dict))
-		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict)
+		checkpoint2= "[Checkpoint 02  " + str(time.time()) + "] Store command in MongoDB instance: " + str(dict_to_print)
 		print(checkpoint2)
 		#checkpoint2_json=json.dumps({"flag":'i', "checkpoint":checkpoint2})
 		#channel.basic_publish(exchange="Checkpoint", routing_key="cmd", body=checkpoint2_json)	#send to mag DB with check point2
